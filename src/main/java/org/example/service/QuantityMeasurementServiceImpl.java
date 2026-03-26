@@ -4,38 +4,44 @@ import org.example.*;
 import org.example.dto.QuantityDTO;
 import org.example.exception.QuantityMeasurementException;
 import org.example.model.QuantityMeasurementEntity;
-import org.example.repository.IQuantityMeasurementRepository;
+import org.example.repository.QuantityMeasurementRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
-    private IQuantityMeasurementRepository repo;
-    public QuantityMeasurementServiceImpl(IQuantityMeasurementRepository repo) {
-        this.repo = repo;
-    }
-    public boolean compare(QuantityDTO q1, QuantityDTO q2) {
-        Quantity<IMeasurable> a = new Quantity<>(q1.getValue(),
-                        UnitFactory.getUnit(q1.getType(), q1.getUnit()));
 
-        Quantity<IMeasurable> b = new Quantity<>(q2.getValue(),
-                        UnitFactory.getUnit(q2.getType(), q2.getUnit()));
+    @Autowired
+    private QuantityMeasurementRepository repo;
+
+    public boolean compare(QuantityDTO q1, QuantityDTO q2) {
+
+        Quantity<IMeasurable> a = new Quantity<>(q1.getValue(), UnitFactory.getUnit(q1.getType(), q1.getUnit()));
+
+        Quantity<IMeasurable> b = new Quantity<>(q2.getValue(), UnitFactory.getUnit(q2.getType(), q2.getUnit()));
+
         return a.equals(b);
     }
+
     public QuantityDTO add(QuantityDTO q1, QuantityDTO q2) {
         try {
-            Quantity<IMeasurable> a = new Quantity<>(q1.getValue(),
-                            UnitFactory.getUnit(q1.getType(), q1.getUnit()));
+            Quantity<IMeasurable> a = new Quantity<>(q1.getValue(), UnitFactory.getUnit(q1.getType(), q1.getUnit()));
 
-            Quantity<IMeasurable> b = new Quantity<>(q2.getValue(),
-                            UnitFactory.getUnit(q2.getType(), q2.getUnit()));
+            Quantity<IMeasurable> b = new Quantity<>(q2.getValue(), UnitFactory.getUnit(q2.getType(), q2.getUnit()));
 
             Quantity<IMeasurable> result = a.add(b);
-            repo.save(new QuantityMeasurementEntity("ADD", result.toString()));
+
+            repo.save(new QuantityMeasurementEntity(null, "ADD", result.toString()));
+
             return new QuantityDTO(
                     result.getValue(),
                     result.getUnit().getUnitName(),
                     q1.getType());
 
         }
-        catch(Exception e) {
+        catch (Exception e) {
             throw new QuantityMeasurementException(e.getMessage());
         }
     }
@@ -43,17 +49,46 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
     public QuantityDTO convert(QuantityDTO q, String targetUnit) {
         try {
             Quantity<IMeasurable> a = new Quantity<>(q.getValue(),
-                            UnitFactory.getUnit(q.getType(), q.getUnit()));
-            Quantity<IMeasurable> result = a.convertTo(UnitFactory.getUnit(q.getType(), targetUnit));
-            repo.save(new QuantityMeasurementEntity("CONVERT", result.toString()));
+                    UnitFactory.getUnit(q.getType(), q.getUnit()));
+
+            Quantity<IMeasurable> result =
+                    a.convertTo(UnitFactory.getUnit(q.getType(), targetUnit));
+
+            repo.save(new QuantityMeasurementEntity(null, "CONVERT", result.toString()));
+
             return new QuantityDTO(
                     result.getValue(),
                     targetUnit,
                     q.getType());
 
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             throw new QuantityMeasurementException(e.getMessage());
         }
     }
+
+    @Override
+    public List<QuantityMeasurementEntity> getAll() {
+        return repo.findAll();
+    }
+    @Override
+    public QuantityMeasurementEntity getById(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new QuantityMeasurementException("Data not found"));
+    }
+    @Override
+    public void delete(Long id) {
+        repo.deleteById(id);
+    }
+    @Override
+    public QuantityMeasurementEntity update(Long id, QuantityMeasurementEntity updated) {
+
+        QuantityMeasurementEntity existing = repo.findById(id)
+                .orElseThrow(() -> new QuantityMeasurementException("Data not found"));
+
+        existing.setOperation(updated.getOperation());
+        existing.setResult(updated.getResult());
+
+        return repo.save(existing);
+    }
+
 }

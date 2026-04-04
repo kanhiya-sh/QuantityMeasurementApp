@@ -33,9 +33,9 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
 //  ----------- Google OAuth2 Login ------------
-//                .oauth2Login(oauth -> oauth
-//                        .defaultSuccessUrl("/api/v1/auth/google-success", true)
-//                )
+                .oauth2Login(oauth -> oauth
+                        .defaultSuccessUrl("/api/v1/auth/google-success", true)
+                )
 
 //  ----------- JWT Filter ------------
                 .addFilterBefore(jwtFilter,

@@ -30,8 +30,8 @@ public class CorsConfig {
 
         // Allow local dev AND production frontend
         config.setAllowedOrigins(List.of(
-            "http://localhost:4200",
-            frontendUrl
+                "http://localhost:4200",
+                frontendUrl
         ));
 
         config.addAllowedHeader("*");

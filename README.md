@@ -29,6 +29,42 @@ MySQL DB            MySQL DB
 
 ---
 
+## Project Structure
+
+```
+QuantityMeasurementApp/
+│
+├── api-gateway/
+│   ├── src/main/java/
+│   └── src/main/resources/
+│
+├── auth-service/
+│   ├── src/main/java/
+│   └── src/main/resources/
+│
+├── qma-service/
+│   ├── src/main/java/
+│   └── src/main/resources/
+│
+├── eureka-server/   (used in development, removed in production)
+│   └── src/main/resources/
+│
+├── docker-compose.yml   (optional for containerized setup)
+├── pom.xml              (parent/root configuration)
+└── README.md
+```
+
+### Structure Overview
+
+* **api-gateway**: Handles routing, JWT validation, and request filtering
+* **auth-service**: Manages authentication and token generation
+* **qma-service**: Contains core business logic for quantity operations
+* **eureka-server**: Service discovery (used initially, later removed)
+* **docker-compose.yml**: Runs all services in containers
+* **pom.xml**: Centralized dependency management
+
+---
+
 ## Microservices
 
 ### API Gateway (Port: 8080)
@@ -97,11 +133,11 @@ All requests pass through the API Gateway:
 
 ### Auth Service
 
-* users table
+* `users` table
 
 ### QMA Service
 
-* quantity_measurements table:
+* `quantity_measurements` table:
 
   * id
   * operation
@@ -124,8 +160,8 @@ The backend is deployed using cloud platforms:
 * QMA Service → Railway
 * API Gateway → Render
 
-Note:
-Service discovery (Eureka) was initially implemented but removed due to cross-platform deployment constraints. Static service URLs are used instead.
+**Note:**
+Service discovery (Eureka) was initially implemented but later removed due to cross-platform deployment constraints. Static service URLs are used instead.
 
 ---
 
@@ -144,6 +180,7 @@ Service discovery (Eureka) was initially implemented but removed due to cross-pl
 
 ```
 git clone https://github.com/kanhiya-sh/QuantityMeasurementApp.git
+cd QuantityMeasurementApp
 ```
 
 2. Create databases
@@ -158,7 +195,7 @@ CREATE DATABASE qma_db;
 4. Run services in order:
 
 ```
-# Eureka Server
+# Eureka Server (for development)
 cd eureka-server && mvn spring-boot:run
 
 # Auth Service
